@@ -1,21 +1,11 @@
-#
-# * Author: wassim ben jdida
-# * Github: wassimbj
-# -----------------------------------------------------------------------------------
-# a python script for downloading educative.io courses
-# ? NOTE: this is a not a hacking tool, you must have access to the course to be able to download it
-# ? read the readme to see how you can use it :)
-# -----------------------------------------------------------------------------------s
-
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from time import sleep
-import img2pdf
 import os
 from pathlib import Path
 
-base_url = "https://educative.io"
+base_url = "https://www.linkedin.com"
 
 options = webdriver.ChromeOptions()
 # change this one according to where you have the binary
@@ -24,8 +14,8 @@ options.headless = True
 options.add_argument("--log-level=3")
 s = Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(service=s, options=options)
-driver.maximize_window()
-driver.set_window_size(1700, 1700)  # you can change this based on your PC
+# driver.maximize_window()
+# driver.set_window_size(1700, 1700)  # you can change this based on your PC
 
 
 def login(email, password):
@@ -34,19 +24,15 @@ def login(email, password):
     @returns true for success and Excpetion otherwise
     """
     try:
-        driver.get(base_url)
+        driver.get(base_url+"/uas/login")
         sleep(7)
-        # # open login modal
-        driver.execute_script(
-            'document.querySelector(".logged-out > div > button").click()')
-        sleep(2)
         # enter email and password
         driver.execute_script(
-            'document.querySelector("form")[0].value = "'+email+'"')
+            'document.querySelector("form #username").value = "'+email+'"')
         driver.execute_script(
-            'document.querySelector("form")[1].value = "'+password+'"')
+            'document.querySelector("form #password").value = "'+password+'"')
         # submit the form
-        driver.execute_script('document.querySelector("form")[3].click()')
+        driver.execute_script('document.querySelector("form button").click()')
         return True
     except Exception as e:
         print("Login Error: ")
@@ -62,26 +48,26 @@ def getCourseContentsLinks():
 
     menu = driver.execute_script("""
       // category and links indexes will be the same here
-      let data = {
-        totalLessons: 0,
-        categories: [],
-        links: []
-      }
-      let categories = document.querySelectorAll(".course-category-hover")
-      for(let i = 0; i < categories.length; i++){
-         let category = categories[i].parentNode.querySelector("h5").textContent
-         let menuLinks = categories[i].parentNode.querySelectorAll("menu a")
-         let menu = []
-         for(let j = 0; j < menuLinks.length; j++){
-            menu.push({
-                name: menuLinks[j].querySelector('span').textContent,
-                url: menuLinks[j].getAttribute("href")
-            })
-            data.totalLessons += 1
-         }
-         data.categories.push(category)
-         data.links.push(menu)
-      }
+        let data = {
+            totalLessons: 0,
+            categories: [],
+            links: []
+        }
+        let categories = document.querySelectorAll(".classroom-toc-section")
+        for(let i = 0; i < categories.length; i++){
+            let category = categories[i].querySelector(".classroom-toc-section__toggle-title").textContent
+            let menuLinks = categories[i].querySelectorAll(".classroom-toc-section__items a")
+            let menu = []
+            for(let j = 0; j < menuLinks.length; j++){
+                menu.push({
+                    name: menuLinks[j].querySelector('.classroom-toc-item__title').textContent,
+                    url: menuLinks[j].getAttribute("href")
+                })
+                data.totalLessons += 1
+            }
+            data.categories.push(category)
+            data.links.push(menu)
+        }
       return data
    """)
     # return the data object
@@ -93,7 +79,7 @@ def cleanFileName(name):
 
 
 def downloadCourse(whereToSaveIt, url):
-    # url example: https://www.educative.io/courses/grokking-computer-networking
+    # url example: https://www.linkedin.com/learning/learn-apache-kafka-for-beginners/
     """
     navigate to the lesson link, take a screenshot and convert it to pdf
 
@@ -128,51 +114,22 @@ def downloadCourse(whereToSaveIt, url):
                 screenShotImgName = cleanFileName(course.get("name")+".png")
                 screenShotImgPath = os.path.join(
                     courseCategoryDir, screenShotImgName)
-                isScreenShoted = takeScreenShot(
-                    base_url+course.get("url"), screenShotImgPath)
-                # screenshot is not taken
-                if isScreenShoted == False:
-                    print("NOT Downloaded: [" +screenShotImgName+"]")
-                    continue
 
-                with open(pdfFilePath, "wb") as f:
-                    img2pdf
-                    f.write(img2pdf.convert(screenShotImgPath))
-                    os.remove(screenShotImgPath)
-                    print("Downloaded: [" + course.get("name")+"]")
-                    downloadedFiles += 1
+                """
+                ! How to download it
+                    1- append a link element on the body
+                        document.createElement("a")
+                        <a href="/images/myw3schoolsimage.jpg" download="w3logo">
+                    2- click it to download the video
+                    3- move the downloaded file from the /Downloads folder to the right one 
+                        os.rename(src, dst)
+                """
 
         stats["totalDownloaded"] = downloadedFiles
         return stats
     except Exception as e:
         print(e)
         return e
-
-
-def takeScreenShot(url, savingPath):
-    """
-    @params: <url> which is the course url
-    @returns: True if success else it returns False
-    """
-    try:
-        driver.get(url)
-        sleep(10)
-
-        screenShotFileName = driver.execute_script("return document.title")
-
-        def getWindowLen(X): return driver.execute_script(
-            "return document.body.parentNode.scroll"+X)
-
-        driver.set_window_size(1700, getWindowLen("Height"))
-        isSaved = driver.find_element_by_tag_name(
-            "body").screenshot(savingPath)
-        if isSaved == False:
-            # print(f"\n\n NOT SAVED ({savingPath}) !!! \n\n")
-            return False
-        sleep(1)
-
-    except Exception as e:
-        return False
 
 
 if __name__ == "__main__":
