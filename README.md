@@ -1,9 +1,5 @@
 # Linkedin Learning courses downloader
 
-## Note
-
-this is not a hacking tool or something like that, it doesn't get you paid courses for free. **BUT it downloads the courses in pdf and in an organised manner.**
-
 ## Usage
 
 ### 1 - Download chrome binary (if you don't have it)
