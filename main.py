@@ -133,7 +133,8 @@ def downloadCourse(url):
                     "autoplay=true", "autoplay=false")
 
                 videoFileName = downloadVideo(urlToCouse)
-                print("videoFileName: ", videoFileName)
+                print("DOWNLOADING...")
+                # wait until we download the video or timeout
                 end_time = time() + (10 * 60)
                 while not os.path.exists(os.path.join(pathToDownlods(), videoFileName)):
                     sleep(1)
@@ -167,7 +168,6 @@ def downloadCourse(url):
 
 
 def downloadVideo(url):
-    # try:
     driver.get(url)
     sleep(2)
     # get video src, append an a tag, click it to download the video
@@ -190,9 +190,6 @@ def downloadVideo(url):
         """)
 
     return videoFileName
-    # except Exception as e:
-    #     print("downloadVideo ERROR: " + e)
-    #     return ""
 
 
 if __name__ == "__main__":
