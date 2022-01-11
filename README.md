@@ -1,4 +1,4 @@
-# Download educative.io courses in pdf
+# Download Linkedin Learning courses downloader
 
 ## Note
 
