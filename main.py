@@ -22,7 +22,6 @@ options = webdriver.ChromeOptions()
 options.binary_location = "D:\workspace\chrome.sync\Chrome-bin\chrome.exe"
 options.headless = True
 prefs = {"profile.default_content_settings.popups": 0,
-         # IMPORTANT - ENDING SLASH V IMPORTANT
          "download.default_directory": pathToDownlods(),
          "directory_upgrade": True}
 options.add_experimental_option("prefs", prefs)
@@ -30,8 +29,6 @@ options.add_experimental_option("prefs", prefs)
 options.add_argument("--log-level=3")
 s = Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(service=s, options=options)
-# driver.maximize_window()
-# driver.set_window_size(1700, 1700)  # you can change this based on your PC
 
 
 def login(email, password):
@@ -90,7 +87,6 @@ def getCourseContentsLinks():
 
 
 def downloadCourse(url):
-    # ? please remove any "/" at the end of the URL
     # url example: https://www.linkedin.com/learning/learn-apache-kafka-for-beginners
     """
     navigate to the lesson link, take a screenshot and convert it to pdf
