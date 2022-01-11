@@ -1,4 +1,4 @@
-# Download Linkedin Learning courses downloader
+# Linkedin Learning courses downloader
 
 ## Note
 
